@@ -1,0 +1,14 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 100" width="512" height="100" fill="none">
+  <g>
+    <!-- Code brackets -->
+    <path d="M50 10 L20 50 L50 90" stroke="#E11D48" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" class="animate-pulse"/>
+    <path d="M110 10 L140 50 L110 90" stroke="#E11D48" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" class="animate-pulse"/>
+    
+    <!-- Grade check marks -->
+    <path d="M155 55 L175 75 L205 35" stroke="#E11D48" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" class="animate-draw"/>
+    
+    <!-- Text -->
+    <text x="235" y="65" font-family="SF Pro Display, Inter, system-ui" font-weight="bold" font-size="48" fill="#E11D48">CodeGrade</text>
+  </g>
+</svg>
