@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart } from "@/components/ui/bar-chart";
@@ -30,17 +29,6 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
             <Skeleton className="h-64 w-full" />
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Course Completion</CardTitle>
-            <CardDescription>
-              <Skeleton className="h-4 w-32" />
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-64 w-full" />
-          </CardContent>
-        </Card>
       </div>
     );
   }
@@ -58,16 +46,6 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
             xField="name"
             yField="submissions"
           />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Course Completion</CardTitle>
-          <CardDescription>Your progress in enrolled courses</CardDescription>
-        </CardHeader>
-        <CardContent className="flex justify-center">
-          <DoughnutChart data={courseCompletionData} />
         </CardContent>
       </Card>
     </div>

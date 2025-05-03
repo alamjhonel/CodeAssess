@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -59,7 +58,17 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Assessment</CardTitle>
+          <CardDescription>...</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* ... */}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Total Submissions</CardTitle>
@@ -88,22 +97,6 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
           <div className="space-y-1">
             <span className="text-2xl font-semibold">{statistics?.average_score?.toFixed(2) || '0.00'}</span>
             <p className="text-muted-foreground">Average</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Courses Enrolled</CardTitle>
-          <CardDescription>Total number of courses you're enrolled in</CardDescription>
-        </CardHeader>
-        <CardContent className="flex items-center space-x-4">
-          <div className="rounded-full bg-secondary/10 p-3">
-            <GraduationCap className="h-6 w-6 text-secondary" />
-          </div>
-          <div className="space-y-1">
-            <span className="text-2xl font-semibold">{coursesCount || 0}</span>
-            <p className="text-muted-foreground">Courses</p>
           </div>
         </CardContent>
       </Card>
