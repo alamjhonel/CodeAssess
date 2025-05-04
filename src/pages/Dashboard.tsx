@@ -125,19 +125,8 @@ const Dashboard: React.FC = () => {
         
         <div className="flex-grow container mx-auto px-4 py-12 mt-8">
           <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-
-          <DashboardStats 
-            statistics={statistics}
-            coursesCount={courses?.length || 0}
-            isLoading={isLoading}
-          />
-
-          <DashboardCharts 
-            submissionsBarChartData={submissionsBarChartData}
-            courseCompletionData={courseCompletionData}
-            isLoading={isLoading}
-          />
-
+  
+          {/* SWAPPED POSITIONS: Assessments now first, Stats second */}
           {profile?.role === 'student' ? (
             <StudentAssessments 
               assessments={assessments || []}
@@ -149,6 +138,18 @@ const Dashboard: React.FC = () => {
               isLoading={isLoading}
             />
           )}
+  
+          <DashboardStats 
+            statistics={statistics}
+            coursesCount={courses?.length || 0}
+            isLoading={isLoading}
+          />
+  
+          <DashboardCharts 
+            submissionsBarChartData={submissionsBarChartData}
+            courseCompletionData={courseCompletionData}
+            isLoading={isLoading}
+          />
         </div>
         
         <Footer />
