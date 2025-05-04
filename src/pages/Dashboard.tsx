@@ -138,18 +138,18 @@ const Dashboard: React.FC = () => {
               isLoading={isLoading}
             />
           )}
-  
+            <DashboardCharts 
+            submissionsBarChartData={submissionsBarChartData}
+            courseCompletionData={courseCompletionData}
+            isLoading={isLoading}
+          />
           <DashboardStats 
             statistics={statistics}
             coursesCount={courses?.length || 0}
             isLoading={isLoading}
           />
   
-          <DashboardCharts 
-            submissionsBarChartData={submissionsBarChartData}
-            courseCompletionData={courseCompletionData}
-            isLoading={isLoading}
-          />
+
         </div>
         
         <Footer />
