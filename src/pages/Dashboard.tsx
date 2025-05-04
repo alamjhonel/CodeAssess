@@ -118,51 +118,33 @@ const Dashboard: React.FC = () => {
       <div className="min-h-screen flex flex-col">
         <Navbar />
         
-        <main className="flex-grow container mx-auto px-4 pt-24 pb-8">
-          {/* Header Section */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-            <h1 className="text-3xl font-bold">Dashboard</h1>
-            <div className="text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
-              {profile?.role === 'teacher' ? 'Teacher Dashboard' : 'Student Dashboard'}
-            </div>
-          </div>
+        <div className="flex-grow container mx-auto px-4 py-12 mt-8">
+          <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
 
-          {/* Quick Stats Section */}
-          <section className="mb-12">
-            <h2 className="text-xl font-semibold mb-4">Overview</h2>
-            <DashboardStats 
-              statistics={statistics}
-              coursesCount={courses?.length || 0}
-              isLoading={isLoading}
-              role={profile?.role}
-            />
-          </section>
+          <DashboardStats 
+            statistics={statistics}
+            coursesCount={courses?.length || 0}
+            isLoading={isLoading}
+          />
 
-          {/* Assessments Section */}
-          <section className="mb-12">
-            {profile?.role === 'student' ? (
-              <StudentAssessments 
-                assessments={assessments || []}
-                isLoading={isLoading}
-              />
-            ) : (
-              <TeacherAssessments 
-                assessments={assessments || []}
-                isLoading={isLoading}
-              />
-            )}
-          </section>
+          <DashboardCharts 
+            submissionsBarChartData={submissionsBarChartData}
+            courseCompletionData={courseCompletionData}
+            isLoading={isLoading}
+          />
 
-          {/* Analytics Section */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">Analytics</h2>
-            <DashboardCharts 
-              submissionsBarChartData={submissionsBarChartData}
-              courseCompletionData={courseCompletionData}
+          {profile?.role === 'student' ? (
+            <StudentAssessments 
+              assessments={assessments || []}
               isLoading={isLoading}
             />
-          </section>
-        </main>
+          ) : (
+            <TeacherAssessments 
+              assessments={assessments || []}
+              isLoading={isLoading}
+            />
+          )}
+        </div>
         
         <Footer />
       </div>

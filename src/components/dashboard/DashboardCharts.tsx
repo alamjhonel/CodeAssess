@@ -17,8 +17,8 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-8">
-        <Card>
+      <div className="w-full mt-8"> {/* Changed to full width */}
+        <Card className="w-full"> {/* Removed max-width constraint */}
           <CardHeader>
             <CardTitle>Submission Status</CardTitle>
             <CardDescription>
@@ -26,7 +26,7 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-64 w-full" />
+<Skeleton className="h-64 w-full" /> {/* Kept same height */}
           </CardContent>
         </Card>
       </div>
@@ -34,13 +34,13 @@ const DashboardCharts: React.FC<DashboardChartsProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-8">
-      <Card>
+    <div className="w-full mt-8"> {/* Changed to full width */}
+      <Card className="w-full"> {/* Removed max-width constraint */}
         <CardHeader>
           <CardTitle>Submission Status</CardTitle>
           <CardDescription>Breakdown of submission statuses</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-6"> {/* Kept same padding */}
           <BarChart
             data={submissionsBarChartData}
             xField="name"
