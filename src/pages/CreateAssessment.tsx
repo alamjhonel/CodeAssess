@@ -4,10 +4,29 @@ import MainLayout from "@/components/layout/MainLayout";
 import CreateAssessmentForm from "@/components/assessment/CreateAssessmentForm";
 import { useAuth } from "@/contexts/auth";
 import { toast } from "sonner";
+import LoadingSpinner from "@/components/LoadingSpinner";
+
+function useRequireTeacher() {
+  const { user, profile, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      toast.error("You must be logged in to create an assessment");
+      navigate('/login');
+    } else if (!isLoading && profile?.role !== 'teacher') {
+      toast.error("Only teachers can create assessments");
+      navigate('/dashboard');
+    }
+  }, [user, profile, isLoading, navigate]);
+
+  return { isLoading };
+}
 
 const CreateAssessment = () => {
   const { user, profile, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { isLoading } = useRequireTeacher();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -22,6 +41,8 @@ const CreateAssessment = () => {
       return;
     }
   }, [user, profile, authLoading, navigate]);
+
+  if (isLoading) return <LoadingSpinner />;
 
   if (authLoading) {
     return (

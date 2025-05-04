@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
 import { supabase } from "@/integrations/supabase/client";
+import MainLayout from "@/components/layout/MainLayout";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const assessmentSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -39,6 +41,28 @@ const defaultRubricItems = [
   "Proper error handling",
   "Code follows standard conventions"
 ];
+
+// Improved custom hook
+function useRequireTeacher() {
+  const { user, profile, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        toast.error("You must be logged in to create an assessment");
+        navigate('/login', { replace: true });
+      } else if (profile?.role !== 'teacher') {
+        toast.error("Only teachers can create assessments");
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [user, profile, isLoading, navigate]);
+
+  // Only allow rendering when not loading and user is a teacher
+  const canRender = !isLoading && user && profile?.role === 'teacher';
+  return { isLoading, canRender };
+}
 
 const CreateAssessmentForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -444,4 +468,20 @@ const CreateAssessmentForm: React.FC = () => {
   );
 };
 
-export default CreateAssessmentForm; 
+const CreateAssessment = () => {
+  const { isLoading, canRender } = useRequireTeacher();
+
+  if (isLoading) return <LoadingSpinner />;
+
+  if (!canRender) return null; // Or a fallback UI
+
+  return (
+    <MainLayout>
+      <div className="container mx-auto py-8">
+        <CreateAssessmentForm />
+      </div>
+    </MainLayout>
+  );
+};
+
+export default CreateAssessment; 
