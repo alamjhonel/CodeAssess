@@ -32,7 +32,7 @@ const Dashboard: React.FC = () => {
   // Show a welcome toast when dashboard loads for logged-in users
   useEffect(() => {
     if (user && !authLoading) {
-      toast.success(`Welcome to CodeGrade, ${user.email?.split('@')[0] || 'User'}`);
+      toast.success(`Welcome back, ${user.email?.split('@')[0] || 'User'}`);
     }
   }, [user, authLoading]);
 
@@ -47,14 +47,9 @@ const Dashboard: React.FC = () => {
   });
 
   const { data: assessments, isLoading: assessmentsLoading } = useQuery({
-    queryKey: ['assessments', user?.id],
+    queryKey: ['assessments'],
     queryFn: getAssessments,
     enabled: shouldFetchData,
-    refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const { data: statistics, isLoading: statsLoading } = useQuery({
@@ -123,33 +118,51 @@ const Dashboard: React.FC = () => {
       <div className="min-h-screen flex flex-col">
         <Navbar />
         
-        <div className="flex-grow container mx-auto px-4 py-12 mt-8">
-          <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
+        <main className="flex-grow container mx-auto px-4 pt-24 pb-8">
+          {/* Header Section */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <div className="text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
+              {profile?.role === 'teacher' ? 'Teacher Dashboard' : 'Student Dashboard'}
+            </div>
+          </div>
 
-          <DashboardStats 
-            statistics={statistics}
-            coursesCount={courses?.length || 0}
-            isLoading={isLoading}
-          />
+          {/* Quick Stats Section */}
+          <section className="mb-12">
+            <h2 className="text-xl font-semibold mb-4">Overview</h2>
+            <DashboardStats 
+              statistics={statistics}
+              coursesCount={courses?.length || 0}
+              isLoading={isLoading}
+              role={profile?.role}
+            />
+          </section>
 
-          <DashboardCharts 
-            submissionsBarChartData={submissionsBarChartData}
-            courseCompletionData={courseCompletionData}
-            isLoading={isLoading}
-          />
+          {/* Assessments Section */}
+          <section className="mb-12">
+            {profile?.role === 'student' ? (
+              <StudentAssessments 
+                assessments={assessments || []}
+                isLoading={isLoading}
+              />
+            ) : (
+              <TeacherAssessments 
+                assessments={assessments || []}
+                isLoading={isLoading}
+              />
+            )}
+          </section>
 
-          {profile?.role === 'student' ? (
-            <StudentAssessments 
-              assessments={assessments || []}
+          {/* Analytics Section */}
+          <section>
+            <h2 className="text-xl font-semibold mb-4">Analytics</h2>
+            <DashboardCharts 
+              submissionsBarChartData={submissionsBarChartData}
+              courseCompletionData={courseCompletionData}
               isLoading={isLoading}
             />
-          ) : (
-            <TeacherAssessments 
-              assessments={assessments || []}
-              isLoading={isLoading}
-            />
-          )}
-        </div>
+          </section>
+        </main>
         
         <Footer />
       </div>

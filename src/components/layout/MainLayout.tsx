@@ -1,13 +1,8 @@
-
 import React from "react";
 import AuthWrapper from "../auth/AuthWrapper";
 import Layout from "./Layout";
 
-interface MainLayoutProps {
-  children?: React.ReactNode;
-}
-
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <AuthWrapper>
       <Layout>{children}</Layout>

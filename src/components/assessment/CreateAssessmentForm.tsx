@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { Assessment } from "@/api/assessments";
 
 const assessmentSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -40,7 +41,17 @@ const defaultRubricItems = [
   "Code follows standard conventions"
 ];
 
-const CreateAssessmentForm: React.FC = () => {
+interface CreateAssessmentFormProps {
+  initialData?: Assessment;
+  onSubmit: (data: AssessmentFormValues) => Promise<void>;
+  isEditing?: boolean;
+}
+
+const CreateAssessmentForm: React.FC<CreateAssessmentFormProps> = ({ 
+  initialData, 
+  onSubmit: onSubmitProp,
+  isEditing = false 
+}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fileContent, setFileContent] = useState<string>("");
   const [customRubricItem, setCustomRubricItem] = useState("");
@@ -51,17 +62,37 @@ const CreateAssessmentForm: React.FC = () => {
   const form = useForm<AssessmentFormValues>({
     resolver: zodResolver(assessmentSchema),
     defaultValues: {
-      title: "",
-      language: "cpp",
-      instructions: "",
-      code: "",
-      sampleOutput: "",
-      deadline: "",
-      rubric: [],
-      type: "assignment",
-      points_possible: 100,
+      title: initialData?.title || "",
+      language: initialData?.language as "c" | "cpp" | "python" || "cpp",
+      instructions: initialData?.content || "",
+      code: initialData?.solution_code || "",
+      sampleOutput: initialData?.test_cases?.[0]?.expected_output || "",
+      deadline: initialData?.due_date || "",
+      rubric: initialData?.rubric ? (Array.isArray(initialData.rubric) 
+        ? initialData.rubric.map(item => typeof item === 'string' ? item : item.name)
+        : []) : [],
+      type: initialData?.type as "quiz" | "assignment" | "project" | "exam" || "assignment",
+      points_possible: initialData?.points_possible || 100,
     },
   });
+
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        title: initialData.title,
+        language: initialData.language as "c" | "cpp" | "python",
+        instructions: initialData.content,
+        code: initialData.solution_code || "",
+        sampleOutput: initialData.test_cases?.[0]?.expected_output || "",
+        deadline: initialData.due_date || "",
+        rubric: Array.isArray(initialData.rubric) 
+          ? initialData.rubric.map(item => typeof item === 'string' ? item : item.name)
+          : [],
+        type: initialData.type as "quiz" | "assignment" | "project" | "exam",
+        points_possible: initialData.points_possible,
+      });
+    }
+  }, [initialData, form]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -85,81 +116,13 @@ const CreateAssessmentForm: React.FC = () => {
   };
 
   const onSubmit = async (data: AssessmentFormValues) => {
-    console.log("Form submitted with data:", data);
-    
-    if (!user) {
-      console.error("No user found");
-      toast.error("You must be logged in to create an assessment");
-      return;
-    }
-
     setIsSubmitting(true);
     try {
-      // Create the assessment in the database
-      console.log("Creating assessment in database...");
-      
-      // Log the data we're trying to insert
-      const assessmentData = {
-        title: data.title,
-        type: data.type,
-        content: data.instructions,
-        solution_code: data.code,
-        test_cases: [{
-          input: "",
-          expected_output: data.sampleOutput,
-          description: "Default test case",
-          weight: 100
-        }],
-        due_date: data.deadline,
-        points_possible: data.points_possible,
-        rubric: data.rubric,
-        created_by: user.id,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
-      console.log("Attempting to insert:", assessmentData);
-
-      const { data: result, error } = await supabase
-        .from('assessments')
-        .insert(assessmentData)
-        .select(`
-          *,
-          profiles:created_by (
-            id,
-            first_name,
-            last_name,
-            email
-          )
-        `);
-
-      if (error) {
-        console.error('Database error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
-        throw new Error(error.message);
-      }
-
-      console.log("Assessment created successfully:", result);
-
-      // Show success message
-      toast.success("Assessment created successfully!", {
-        description: "The assessment has been added to your dashboard.",
-        duration: 5000,
-      });
-
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1500);
-
-    } catch (error: any) {
-      console.error('Error creating assessment:', error);
-      toast.error("Failed to create assessment", {
-        description: error.message || "Please try again later.",
+      await onSubmitProp(data);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast.error("Failed to submit form", {
+        description: error instanceof Error ? error.message : "Please try again later.",
         duration: 5000,
       });
     } finally {
@@ -170,7 +133,7 @@ const CreateAssessmentForm: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create New Assessment</CardTitle>
+        <CardTitle>{isEditing ? "Edit Assessment" : "Create New Assessment"}</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -259,32 +222,14 @@ const CreateAssessmentForm: React.FC = () => {
               name="code"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Code</FormLabel>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        ref={fileInputRef}
-                        type="file"
-                        accept=".txt"
-                        onChange={handleFileUpload}
-                        className="cursor-pointer"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload Code
-                      </Button>
-                    </div>
+                  <FormLabel>Solution Code</FormLabel>
+                  <FormControl>
                     <Textarea
-                      placeholder="Or paste your code here"
+                      placeholder="Enter solution code"
                       className="min-h-[200px] font-mono"
                       {...field}
-                      value={fileContent || field.value}
                     />
-                  </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -371,23 +316,25 @@ const CreateAssessmentForm: React.FC = () => {
                       ))}
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Input
-                          placeholder="Add custom rubric item"
-                          value={customRubricItem}
-                          onChange={(e) => setCustomRubricItem(e.target.value)}
-                          className="flex-1"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={handleAddCustomRubric}
-                          disabled={!customRubricItem.trim()}
-                        >
-                          Add
-                        </Button>
-                      </div>
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        placeholder="Add custom rubric item"
+                        value={customRubricItem}
+                        onChange={(e) => setCustomRubricItem(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddCustomRubric();
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleAddCustomRubric}
+                      >
+                        Add
+                      </Button>
                     </div>
 
                     <div className="space-y-2">
@@ -431,10 +378,10 @@ const CreateAssessmentForm: React.FC = () => {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating Assessment...
+                  {isEditing ? "Updating..." : "Creating..."}
                 </>
               ) : (
-                "Create Assessment"
+                isEditing ? "Update Assessment" : "Create Assessment"
               )}
             </Button>
           </form>

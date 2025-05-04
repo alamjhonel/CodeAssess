@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,6 +17,7 @@ import Privacy from "./pages/Privacy";
 import Documentation from "./pages/Documentation";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import CreateAssessment from "./pages/CreateAssessment";
+import EditAssessment from "./pages/EditAssessment";
 import CoursesList from "./pages/CoursesList";
 import CourseDetails from "./pages/CourseDetails";
 import Register from "./pages/Register";
@@ -40,6 +40,7 @@ const App = () => (
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/assessment/:id" element={<ProtectedRoute><Assessment /></ProtectedRoute>} />
             <Route path="/create-assessment" element={<ProtectedRoute teacherOnly><CreateAssessment /></ProtectedRoute>} />
+            <Route path="/edit-assessment/:id" element={<ProtectedRoute teacherOnly><EditAssessment /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute teacherOnly><Analytics /></ProtectedRoute>} />
             <Route path="/export" element={<ProtectedRoute teacherOnly><ExportData /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
